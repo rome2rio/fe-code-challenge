@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import ModeMenu from "../ModeMenu/ModeMenu";
 import PopunderCheckbox from "../PopunderCheckbox/PopunderCheckbox";
+import SearchTransport from "../SearchTransport/SearchTransport";
 
 const Container = styled.div`
   max-width: 1100px;
@@ -11,7 +12,6 @@ const Container = styled.div`
 const SearchBox = styled.div`
   border-radius: 4px;
   box-shadow: 2px 2px 20px rgb(0 0 0 / 35%);
-  min-height: 176px;
   background-color: rgba(35, 40, 45, 0.96);
   padding: 20px 24px 0;
   margin-bottom: 20px;
@@ -26,7 +26,7 @@ const HomeSearchBox = () => {
     <Container>
       <SearchBox>
         <ModeMenu mode={currentMode} onClick={(mode) => setCurrentMode(mode)} />
-        {currentMode === "Transport" && <>Transport</>}
+        {currentMode === "Transport" && <SearchTransport />}
         {currentMode === "Tickets" && <>Tickets</>}
       </SearchBox>
       <PopunderCheckbox />
