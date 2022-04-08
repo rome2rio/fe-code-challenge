@@ -1,33 +1,109 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { useQuery, useQueryClient } from "react-query";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { useDebounce } from "../../hooks/useDebounce";
+import Autosuggest from "react-autosuggest";
+
+export interface Request {
+  query: string;
+  languageCode: string;
+}
+
+export interface Result {
+  kind: string;
+  kinds: string[];
+  shortName: string;
+  longName: string;
+  canonicalName: string;
+}
+
+type AutocompleteRequestData = {
+  request: Request;
+  results: Result[];
+};
+
+type AutocompleteRequest = {
+  data: AutocompleteRequestData;
+};
 
 const Container = styled.div`
   width: 50%;
   padding: 8px 16px;
 `;
 
-const AutocompleteInput = styled.input`
-  font-size: 18px;
-  height: 32px;
-  padding: 0;
-  text-overflow: ellipsis;
-  border: none;
-  background-color: transparent;
-  width: 100%;
-  -webkit-appearance: textfield;
-  user-select: all;
+const AutosuggestContainer = styled.div`
+  .react-autosuggest__input {
+    width: 100%;
+    border: none;
+    padding: 0;
 
-  &::selection {
-    background: #de007b;
-    color: white;
+    font-size: 18px;
+    height: 32px;
+    padding: 0;
+    text-overflow: ellipsis;
+    border: none;
+    background-color: transparent;
+    width: 100%;
+    -webkit-appearance: textfield;
+    user-select: all;
+    color: black;
+
+    &::selection {
+      background: #de007b;
+      color: white;
+    }
+
+    &:focus {
+      outline: none;
+      color: #5a5a5a;
+    }
   }
 
-  &:focus {
+  .react-autosuggest__container {
+    position: relative;
+  }
+
+  .react-autosuggest__input--focused {
     outline: none;
-    color: #5a5a5a;
+  }
+
+  .react-autosuggest__input--open {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .react-autosuggest__suggestions-container {
+    display: none;
+  }
+
+  .react-autosuggest__suggestions-container--open {
+    display: block;
+    position: absolute;
+    top: 40px;
+    left: -15px;
+    width: 100%;
+    border: 1px solid #aaa;
+    background-color: #fff;
+    font-family: Helvetica, sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    z-index: 2;
+  }
+
+  .react-autosuggest__suggestions-list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+  }
+
+  .react-autosuggest__suggestion {
+    cursor: pointer;
+    padding: 10px 20px;
+  }
+
+  .react-autosuggest__suggestion--highlighted {
+    background-color: #ddd;
   }
 `;
 
@@ -36,53 +112,51 @@ type AutocompleteProps = {
 };
 
 const Autocomplete = (props: AutocompleteProps) => {
-  const [searchTerm, setSearchTerm] = useState(props.startValue);
+  const [value, setValue] = useState(props.startValue);
+  // const [canonicalName, setCanonicalName] = useState(props.startCanonical)
+  const [suggestions, setSuggestions] = useState<Result[]>([]);
+  const getAutocomplete = async (
+    value: string
+  ): Promise<AutocompleteRequest> => {
+    return await axios.get(
+      `https://services.rome2rio.com/api/1.5/json/Autocomplete?key=86f5qBa1&query=${value}&type=r2r&languageCode=en`
+    );
+  };
 
-  const queryClient = useQueryClient();
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
-  const { data, isLoading } = useQuery(
-    ["searchTerm", debouncedSearchTerm],
-    async () => {
-      const { data } = await axios.get(
-        `https://services.rome2rio.com/api/1.5/json/Autocomplete?key=86f5qBa1&query=${debouncedSearchTerm}&type=r2r&languageCode=en`
-      );
-      return data;
-    }
-  );
-
-  // Effect for API call
-  useEffect(
-    () => {
-      if (debouncedSearchTerm) {
-        // queryClient.invalidateQueries(["searchTerm", searchTerm]);
-        console.log("searching", debouncedSearchTerm);
-      } else {
-        console.log("debouncing");
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [debouncedSearchTerm] // Only call effect if debounced search term changes
-  );
+  async function getSuggestions(value: string) {
+    let results = await getAutocomplete(value);
+    setSuggestions(results.data.results);
+  }
 
   return (
     <Container>
       <label className="autocomplete__label" htmlFor="search-from"></label>
       <div className="faux-input autocomplete__input-wrapper">
         <div className="autocomplete__shadow faux-input"></div>
-        <AutocompleteInput
-          type="search"
-          aria-label="Enter a location"
-          name="from"
-          id="search-from"
-          placeholder="Enter a starting location"
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="off"
-          spellCheck="false"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <AutosuggestContainer>
+          <Autosuggest
+            suggestions={suggestions}
+            onSuggestionsClearRequested={() => setSuggestions([])}
+            onSuggestionsFetchRequested={({ value }) => {
+              setValue(value);
+              getSuggestions(value);
+            }}
+            onSuggestionSelected={(_, { suggestionValue }) =>
+              console.log("Selected: " + suggestionValue)
+            }
+            getSuggestionValue={(suggestion) => suggestion.longName}
+            renderSuggestion={(suggestion) => (
+              <span>{suggestion.longName}</span>
+            )}
+            inputProps={{
+              value: value,
+              onChange: (_, { newValue, method }) => {
+                setValue(newValue);
+              },
+            }}
+            highlightFirstSuggestion={true}
+          />
+        </AutosuggestContainer>
       </div>
     </Container>
   );
