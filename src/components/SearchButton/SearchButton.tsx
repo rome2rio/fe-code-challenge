@@ -24,8 +24,12 @@ const Button = styled.button`
   }
 `;
 
-const SearchButton = () => {
-  return <Button>Search</Button>;
+type SearchButtonProps = {
+  onClick: () => void;
+};
+
+const SearchButton = ({ onClick }: SearchButtonProps) => {
+  return <Button onClick={onClick}>Search</Button>;
 };
 
 export default SearchButton;

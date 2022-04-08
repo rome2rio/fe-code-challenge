@@ -13,12 +13,26 @@ const Container = styled.div`
   margin-right: 16px;
 `;
 
-const SearchTransportPairs = () => {
+type SearchTransportPairsProps = {
+  origin: string;
+  destination: string;
+  onNewOrigin: (st: string) => void;
+  onNewDestination: (st: string) => void;
+  onSwapDirections: () => void;
+};
+
+const SearchTransportPairs = (props: SearchTransportPairsProps) => {
   return (
     <Container>
-      <Autocomplete startValue="Melbourne, VIC, Australia" />
-      <SwapDirections />
-      <Autocomplete startValue="Sydney, NSW, Australia" />
+      <Autocomplete
+        startCanonical={props.origin}
+        onNewCanonical={props.onNewOrigin}
+      />
+      <SwapDirections onClick={props.onSwapDirections} />
+      <Autocomplete
+        startCanonical={props.destination}
+        onNewCanonical={props.onNewDestination}
+      />
     </Container>
   );
 };

@@ -23,7 +23,7 @@ const Container = styled.div`
     content: "";
     position: absolute;
     width: 1px;
-    border-color: #1f1e1e;
+    background: #1f1e1e;
     top: -10px;
     left: 15px;
     height: 10px;
@@ -45,10 +45,14 @@ const SwitchIconContainer = styled.div`
   padding: 8px;
 `;
 
-const SwapDirections = () => {
+type SwapDirectionsProps = {
+  onClick: () => void;
+};
+
+const SwapDirections = (props: SwapDirectionsProps) => {
   return (
     <Container>
-      <SwitchIconContainer>
+      <SwitchIconContainer onClick={props.onClick}>
         <Logo />
       </SwitchIconContainer>
     </Container>

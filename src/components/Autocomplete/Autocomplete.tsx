@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Autosuggest from "react-autosuggest";
 
@@ -108,13 +108,17 @@ const AutosuggestContainer = styled.div`
 `;
 
 type AutocompleteProps = {
-  startValue: string;
+  startCanonical: string;
+  onNewCanonical: (st: string) => void;
 };
 
-const Autocomplete = (props: AutocompleteProps) => {
-  const [value, setValue] = useState(props.startValue);
-  // const [canonicalName, setCanonicalName] = useState(props.startCanonical)
+const Autocomplete = ({
+  startCanonical,
+  onNewCanonical,
+}: AutocompleteProps) => {
+  const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<Result[]>([]);
+
   const getAutocomplete = async (
     value: string
   ): Promise<AutocompleteRequest> => {
@@ -128,36 +132,44 @@ const Autocomplete = (props: AutocompleteProps) => {
     setSuggestions(results.data.results);
   }
 
+  // Gets initial canonical
+  useEffect(() => {
+    setInput("");
+    async function getInit() {
+      let results = await getAutocomplete(startCanonical);
+      onNewCanonical(results.data.results[0].canonicalName);
+      setInput(results.data.results[0].longName);
+    }
+
+    getInit();
+  }, [onNewCanonical, startCanonical]);
+
   return (
     <Container>
-      <label className="autocomplete__label" htmlFor="search-from"></label>
-      <div className="faux-input autocomplete__input-wrapper">
-        <div className="autocomplete__shadow faux-input"></div>
-        <AutosuggestContainer>
-          <Autosuggest
-            suggestions={suggestions}
-            onSuggestionsClearRequested={() => setSuggestions([])}
-            onSuggestionsFetchRequested={({ value }) => {
-              setValue(value);
-              getSuggestions(value);
-            }}
-            onSuggestionSelected={(_, { suggestionValue }) =>
-              console.log("Selected: " + suggestionValue)
-            }
-            getSuggestionValue={(suggestion) => suggestion.longName}
-            renderSuggestion={(suggestion) => (
-              <span>{suggestion.longName}</span>
-            )}
-            inputProps={{
-              value: value,
-              onChange: (_, { newValue, method }) => {
-                setValue(newValue);
-              },
-            }}
-            highlightFirstSuggestion={true}
-          />
-        </AutosuggestContainer>
-      </div>
+      <AutosuggestContainer>
+        <Autosuggest
+          suggestions={suggestions}
+          onSuggestionsClearRequested={() => setSuggestions([])}
+          onSuggestionsFetchRequested={({ value }) => {
+            getSuggestions(value);
+          }}
+          onSuggestionSelected={(_, result) => {
+            console.log("Selected: ", result.suggestion);
+            onNewCanonical(result.suggestion.canonicalName);
+          }}
+          getSuggestionValue={(suggestion) => {
+            return suggestion.longName;
+          }}
+          renderSuggestion={(suggestion) => <span>{suggestion.longName}</span>}
+          inputProps={{
+            value: input,
+            onChange: (_, { newValue, method }) => {
+              setInput(newValue);
+            },
+          }}
+          highlightFirstSuggestion={true}
+        />
+      </AutosuggestContainer>
     </Container>
   );
 };
