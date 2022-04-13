@@ -3,7 +3,21 @@ import bg from "./bg.jpeg";
 import logo from "./r2r-logo.svg";
 import styled from "styled-components";
 import HomeSearchBox from "../HomeSearchBox/HomeSearchBox";
-import { QueryClient, QueryClientProvider } from "react-query";
+
+export function App() {
+  return (
+    <BackgroundContainer>
+      <BackgroundCover />
+      <Banner>
+        <CompanyLogo />
+        <Headline>
+          Discover how to get anywhere by plane, train, bus, ferry & car
+        </Headline>
+        <HomeSearchBox />
+      </Banner>
+    </BackgroundContainer>
+  );
+}
 
 const BackgroundContainer = styled.section`
   height: 87vh;
@@ -51,24 +65,3 @@ const Banner = styled.div`
   position: relative;
   z-index: 2;
 `;
-
-const queryClient = new QueryClient();
-
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <BackgroundContainer>
-        <BackgroundCover></BackgroundCover>
-        <Banner>
-          <CompanyLogo />
-          <Headline>
-            Discover how to get anywhere by plane, train, bus, ferry & car
-          </Headline>
-          <HomeSearchBox />
-        </Banner>
-      </BackgroundContainer>
-    </QueryClientProvider>
-  );
-}
-
-export default App;
