@@ -1,5 +1,27 @@
-import React from "react";
 import styled, { css } from "styled-components";
+
+type ModeTabItemProps = {
+  mode: string;
+  isActive: boolean;
+  onClick: (mode: string) => void;
+};
+
+export function ModeTabItem({ mode, isActive, onClick }: ModeTabItemProps) {
+  return (
+    <Container>
+      <ModeTabItemAncor
+        id={`button-${mode}`}
+        href={`#${mode}`}
+        data-tr-id="tab"
+        data-tr-label={mode}
+        isActive={isActive}
+        onClick={() => onClick(mode)}
+      >
+        {mode}
+      </ModeTabItemAncor>
+    </Container>
+  );
+}
 
 const Container = styled.li`
   font-size: 16px;
@@ -47,28 +69,3 @@ const ModeTabItemAncor = styled.a<{ isActive?: boolean }>`
       }
     `}
 `;
-
-type ModeTabItemProps = {
-  mode: string;
-  isActive: boolean;
-  onClick: (mode: string) => void;
-};
-
-const ModeTabItem = ({ mode, isActive, onClick }: ModeTabItemProps) => {
-  return (
-    <Container>
-      <ModeTabItemAncor
-        id={`button-${mode}`}
-        href={`#${mode}`}
-        data-tr-id="tab"
-        data-tr-label={mode}
-        isActive={isActive}
-        onClick={() => onClick(mode)}
-      >
-        {mode}
-      </ModeTabItemAncor>
-    </Container>
-  );
-};
-
-export default ModeTabItem;

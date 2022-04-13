@@ -1,20 +1,87 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import Autosuggest from "react-autosuggest";
 
-export interface Request {
-  query: string;
-  languageCode: string;
+type AutocompleteProps = {
+  startCanonical: string;
+  onNewCanonical: (st: string) => void;
+};
+
+export function Autocomplete({
+  startCanonical,
+  onNewCanonical,
+}: AutocompleteProps) {
+  const [input, setInput] = useState("");
+  const [suggestions, setSuggestions] = useState<Result[]>([]);
+
+  const getAutocomplete = async (
+    value: string
+  ): Promise<AutocompleteRequest> => {
+    return await axios.get(
+      `https://services.rome2rio.com/api/1.5/json/Autocomplete?key=86f5qBa1&query=${value}&type=r2r&languageCode=en`
+    );
+  };
+
+  async function getSuggestions(value: string) {
+    let results = await getAutocomplete(value);
+    setSuggestions(results.data.results);
+  }
+
+  // Gets initial canonical
+  useEffect(() => {
+    setInput("");
+    async function getInit() {
+      let results = await getAutocomplete(startCanonical);
+      onNewCanonical(results.data.results[0].canonicalName);
+      setInput(results.data.results[0].longName);
+    }
+
+    getInit();
+  }, [onNewCanonical, startCanonical]);
+
+  return (
+    <Container>
+      <AutosuggestContainer>
+        <Autosuggest
+          suggestions={suggestions}
+          onSuggestionsClearRequested={() => setSuggestions([])}
+          onSuggestionsFetchRequested={({ value }) => {
+            getSuggestions(value);
+          }}
+          onSuggestionSelected={(_, result) => {
+            console.log("Selected: ", result.suggestion);
+            onNewCanonical(result.suggestion.canonicalName);
+          }}
+          getSuggestionValue={(suggestion) => {
+            return suggestion.longName;
+          }}
+          renderSuggestion={(suggestion) => <span>{suggestion.longName}</span>}
+          inputProps={{
+            value: input,
+            onChange: (_, { newValue, method }) => {
+              setInput(newValue);
+            },
+          }}
+          highlightFirstSuggestion={true}
+        />
+      </AutosuggestContainer>
+    </Container>
+  );
 }
 
-export interface Result {
+type Request = {
+  query: string;
+  languageCode: string;
+};
+
+type Result = {
   kind: string;
   kinds: string[];
   shortName: string;
   longName: string;
   canonicalName: string;
-}
+};
 
 type AutocompleteRequestData = {
   request: Request;
@@ -38,11 +105,8 @@ const AutosuggestContainer = styled.div`
 
     font-size: 18px;
     height: 32px;
-    padding: 0;
     text-overflow: ellipsis;
-    border: none;
     background-color: transparent;
-    width: 100%;
     -webkit-appearance: textfield;
     user-select: all;
     color: black;
@@ -106,72 +170,3 @@ const AutosuggestContainer = styled.div`
     background-color: #ddd;
   }
 `;
-
-type AutocompleteProps = {
-  startCanonical: string;
-  onNewCanonical: (st: string) => void;
-};
-
-const Autocomplete = ({
-  startCanonical,
-  onNewCanonical,
-}: AutocompleteProps) => {
-  const [input, setInput] = useState("");
-  const [suggestions, setSuggestions] = useState<Result[]>([]);
-
-  const getAutocomplete = async (
-    value: string
-  ): Promise<AutocompleteRequest> => {
-    return await axios.get(
-      `https://services.rome2rio.com/api/1.5/json/Autocomplete?key=86f5qBa1&query=${value}&type=r2r&languageCode=en`
-    );
-  };
-
-  async function getSuggestions(value: string) {
-    let results = await getAutocomplete(value);
-    setSuggestions(results.data.results);
-  }
-
-  // Gets initial canonical
-  useEffect(() => {
-    setInput("");
-    async function getInit() {
-      let results = await getAutocomplete(startCanonical);
-      onNewCanonical(results.data.results[0].canonicalName);
-      setInput(results.data.results[0].longName);
-    }
-
-    getInit();
-  }, [onNewCanonical, startCanonical]);
-
-  return (
-    <Container>
-      <AutosuggestContainer>
-        <Autosuggest
-          suggestions={suggestions}
-          onSuggestionsClearRequested={() => setSuggestions([])}
-          onSuggestionsFetchRequested={({ value }) => {
-            getSuggestions(value);
-          }}
-          onSuggestionSelected={(_, result) => {
-            console.log("Selected: ", result.suggestion);
-            onNewCanonical(result.suggestion.canonicalName);
-          }}
-          getSuggestionValue={(suggestion) => {
-            return suggestion.longName;
-          }}
-          renderSuggestion={(suggestion) => <span>{suggestion.longName}</span>}
-          inputProps={{
-            value: input,
-            onChange: (_, { newValue, method }) => {
-              setInput(newValue);
-            },
-          }}
-          highlightFirstSuggestion={true}
-        />
-      </AutosuggestContainer>
-    </Container>
-  );
-};
-
-export default Autocomplete;

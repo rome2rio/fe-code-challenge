@@ -1,6 +1,19 @@
-import React from "react";
 import styled from "styled-components";
 import { ReactComponent as Logo } from "./switch-arrows.svg";
+
+type SwapDirectionsProps = {
+  onClick: () => void;
+};
+
+export function SwapDirections(props: SwapDirectionsProps) {
+  return (
+    <Container>
+      <SwitchIconContainer onClick={props.onClick}>
+        <Logo />
+      </SwitchIconContainer>
+    </Container>
+  );
+}
 
 const Container = styled.div`
   border: 1px solid #1f1e1e;
@@ -44,19 +57,3 @@ const Container = styled.div`
 const SwitchIconContainer = styled.div`
   padding: 8px;
 `;
-
-type SwapDirectionsProps = {
-  onClick: () => void;
-};
-
-const SwapDirections = (props: SwapDirectionsProps) => {
-  return (
-    <Container>
-      <SwitchIconContainer onClick={props.onClick}>
-        <Logo />
-      </SwitchIconContainer>
-    </Container>
-  );
-};
-
-export default SwapDirections;

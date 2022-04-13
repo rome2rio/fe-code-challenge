@@ -1,15 +1,6 @@
-import React from "react";
 import styled from "styled-components";
 
-const Container = styled.div`
-  color: white;
-`;
-
-const Label = styled.label`
-  padding-left: 10px;
-`;
-
-const PopunderCheckbox = () => {
+export function PopunderCheckbox() {
   return (
     <Container>
       <input id="search_hotels" type="checkbox" data-provider="BookingCom" />
@@ -18,6 +9,12 @@ const PopunderCheckbox = () => {
       </Label>
     </Container>
   );
-};
+}
 
-export default PopunderCheckbox;
+const Container = styled.div`
+  color: white;
+`;
+
+const Label = styled.label`
+  padding-left: 10px;
+`;

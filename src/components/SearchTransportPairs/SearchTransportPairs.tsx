@@ -1,17 +1,6 @@
-import React from "react";
 import styled from "styled-components";
-import Autocomplete from "../Autocomplete/Autocomplete";
-import SwapDirections from "../SwapDirections/SwapDirections";
-
-const Container = styled.div`
-  position: relative;
-  width: 100%;
-  background: white;
-  border-radius: 3px;
-  display: flex;
-  flex: 1;
-  margin-right: 16px;
-`;
+import { Autocomplete } from "../Autocomplete/Autocomplete";
+import { SwapDirections } from "../SwapDirections/SwapDirections";
 
 type SearchTransportPairsProps = {
   origin: string;
@@ -21,7 +10,7 @@ type SearchTransportPairsProps = {
   onSwapDirections: () => void;
 };
 
-const SearchTransportPairs = (props: SearchTransportPairsProps) => {
+export function SearchTransportPairs(props: SearchTransportPairsProps) {
   return (
     <Container>
       <Autocomplete
@@ -35,6 +24,14 @@ const SearchTransportPairs = (props: SearchTransportPairsProps) => {
       />
     </Container>
   );
-};
+}
 
-export default SearchTransportPairs;
+const Container = styled.div`
+  position: relative;
+  width: 100%;
+  background: white;
+  border-radius: 3px;
+  display: flex;
+  flex: 1;
+  margin-right: 16px;
+`;

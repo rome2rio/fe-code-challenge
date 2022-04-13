@@ -1,7 +1,6 @@
-import React from "react";
 import styled from "styled-components";
 
-const Button = styled.button`
+export const SearchButton = styled.button`
   -webkit-appearance: none;
   font-size: 16px;
   letter-spacing: 0.05em;
@@ -23,13 +22,3 @@ const Button = styled.button`
     opacity: 0.9;
   }
 `;
-
-type SearchButtonProps = {
-  onClick: () => void;
-};
-
-const SearchButton = ({ onClick }: SearchButtonProps) => {
-  return <Button onClick={onClick}>Search</Button>;
-};
-
-export default SearchButton;

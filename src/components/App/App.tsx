@@ -1,8 +1,7 @@
-import React from "react";
 import bg from "./bg.jpeg";
 import logo from "./r2r-logo.svg";
 import styled from "styled-components";
-import HomeSearchBox from "../HomeSearchBox/HomeSearchBox";
+import { HomeSearchBox } from "../HomeSearchBox/HomeSearchBox";
 
 export function App() {
   return (

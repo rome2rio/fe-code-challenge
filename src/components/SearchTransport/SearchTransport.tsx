@@ -1,14 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
-import SearchButton from "../SearchButton/SearchButton";
-import SearchTransportPairs from "../SearchTransportPairs/SearchTransportPairs";
+import { SearchButton } from "../SearchButton/SearchButton";
+import { SearchTransportPairs } from "../SearchTransportPairs/SearchTransportPairs";
 
-const Container = styled.div`
-  display: flex;
-  padding: 24px 0;
-`;
-
-const SearchTransport = () => {
+export function SearchTransport() {
   const [origin, setOrigin] = useState<string>("Melbourne");
   const [destination, setDestination] = useState<string>("Sydney");
 
@@ -34,9 +29,12 @@ const SearchTransport = () => {
         onNewDestination={(newDestination) => setDestination(newDestination)}
         onSwapDirections={() => swapDirections()}
       />
-      <SearchButton onClick={() => openExplore()} />
+      <SearchButton onClick={() => openExplore()}>Search</SearchButton>
     </Container>
   );
-};
+}
 
-export default SearchTransport;
+const Container = styled.div`
+  display: flex;
+  padding: 24px 0;
+`;
