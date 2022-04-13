@@ -16,7 +16,7 @@ export function SearchTransport() {
 
   const openExplore = () => {
     const url = `http://www.rome2rio.com/map/${origin}/${destination}`;
-    var win = window.open(url, "_blank")!;
+    const win = window.open(url, "_blank")!;
     win.focus();
   };
 

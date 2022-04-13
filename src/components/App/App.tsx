@@ -2,19 +2,23 @@ import bg from "./bg.jpeg";
 import logo from "./r2r-logo.svg";
 import styled from "styled-components";
 import { HomeSearchBox } from "../HomeSearchBox/HomeSearchBox";
+import { LogoSection } from "../LogoSection/LogoSection";
 
 export function App() {
   return (
-    <BackgroundContainer>
-      <BackgroundCover />
-      <Banner>
-        <CompanyLogo />
-        <Headline>
-          Discover how to get anywhere by plane, train, bus, ferry & car
-        </Headline>
-        <HomeSearchBox />
-      </Banner>
-    </BackgroundContainer>
+    <>
+      <BackgroundContainer>
+        <BackgroundCover />
+        <Banner>
+          <CompanyLogo />
+          <Headline>
+            Discover how to get anywhere by plane, train, bus, ferry & car
+          </Headline>
+          <HomeSearchBox />
+        </Banner>
+      </BackgroundContainer>
+      <LogoSection />
+    </>
   );
 }
 
