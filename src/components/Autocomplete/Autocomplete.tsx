@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
-import Autosuggest from "react-autosuggest";
+import Autosuggest, {
+  OnSuggestionSelected,
+  SuggestionsFetchRequested,
+} from "react-autosuggest";
 
 type AutocompleteProps = {
   startCanonical: string;
@@ -46,9 +49,9 @@ export function Autocomplete({
         <Autosuggest
           suggestions={suggestions}
           onSuggestionsClearRequested={() => setSuggestions([])}
-          onSuggestionsFetchRequested={({ value }) => {
+          onSuggestionsFetchRequested={debounce(({ value }) => {
             getSuggestions(value);
-          }}
+          })}
           onSuggestionSelected={(_, result) =>
             onNewCanonical(result.suggestion.canonicalName)
           }
@@ -67,6 +70,19 @@ export function Autocomplete({
       </AutosuggestContainer>
     </Container>
   );
+}
+
+function debounce(
+  func: SuggestionsFetchRequested,
+  timeout = 1000
+): SuggestionsFetchRequested {
+  let timer: any;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, timeout);
+  };
 }
 
 type Request = {
