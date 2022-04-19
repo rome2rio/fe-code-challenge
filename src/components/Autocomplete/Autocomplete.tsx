@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Autosuggest from "react-autosuggest";
 
@@ -13,32 +12,43 @@ export function Autocomplete({
   onNewCanonical,
 }: AutocompleteProps) {
   const [input, setInput] = useState("");
+  const [currentQuery, setCurrentQuery] = useState(startCanonical);
   const [suggestions, setSuggestions] = useState<Result[]>([]);
 
-  const getAutocomplete = async (
-    value: string
-  ): Promise<AutocompleteRequest> => {
-    return await axios.get(
-      `https://services.rome2rio.com/api/1.5/json/Autocomplete?key=86f5qBa1&query=${value}&type=r2r&languageCode=en`
-    );
-  };
-
-  async function getSuggestions(value: string) {
-    let results = await getAutocomplete(value);
-    setSuggestions(results.data.results);
+  function getAutocompleteResults(value: string) {
+    const url = `https://services.rome2rio.com/api/1.5/json/Autocomplete?key=86f5qBa1&query=${value}&type=r2r&languageCode=en`;
+    return fetch(url, {
+      referrerPolicy: "no-referrer-when-downgrade",
+    })
+      .then((response) => response.json())
+      .then((response) => response as AutocompleteRequestData)
+      .then((response) => {
+        if (!response || response.results.length <= 0) {
+          return Promise.reject("no results");
+        } else {
+          return Promise.resolve(response.results);
+        }
+      });
   }
 
-  // Gets initial canonical
-  useEffect(() => {
-    setInput("");
-    async function getInit() {
-      let results = await getAutocomplete(startCanonical);
-      onNewCanonical(results.data.results[0].canonicalName);
-      setInput(results.data.results[0].longName);
-    }
+  const nextRequestn = useRef(1);
+  const latestReceivedResponseNum = useRef(0);
 
-    getInit();
-  }, [onNewCanonical, startCanonical]);
+  useLayoutEffect(() => {
+    var requestNum = nextRequestn.current;
+    nextRequestn.current = requestNum + 1;
+
+    getAutocompleteResults(currentQuery).then((results) => {
+      if (requestNum === 1) {
+        onNewCanonical(results[0].longName);
+        setInput(results[0].longName);
+      } else if (requestNum > latestReceivedResponseNum.current) {
+        latestReceivedResponseNum.current = requestNum;
+        setSuggestions(results);
+      } else {
+      }
+    });
+  }, [currentQuery]);
 
   return (
     <Container>
@@ -46,9 +56,7 @@ export function Autocomplete({
         <Autosuggest
           suggestions={suggestions}
           onSuggestionsClearRequested={() => setSuggestions([])}
-          onSuggestionsFetchRequested={({ value }) => {
-            getSuggestions(value);
-          }}
+          onSuggestionsFetchRequested={({ value }) => setCurrentQuery(value)}
           onSuggestionSelected={(_, result) =>
             onNewCanonical(result.suggestion.canonicalName)
           }
@@ -85,10 +93,6 @@ type Result = {
 type AutocompleteRequestData = {
   request: Request;
   results: Result[];
-};
-
-type AutocompleteRequest = {
-  data: AutocompleteRequestData;
 };
 
 const Container = styled.div`
