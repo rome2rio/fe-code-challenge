@@ -49,10 +49,9 @@ export function Autocomplete({
           onSuggestionsFetchRequested={({ value }) => {
             getSuggestions(value);
           }}
-          onSuggestionSelected={(_, result) => {
-            console.log("Selected: ", result.suggestion);
-            onNewCanonical(result.suggestion.canonicalName);
-          }}
+          onSuggestionSelected={(_, result) =>
+            onNewCanonical(result.suggestion.canonicalName)
+          }
           getSuggestionValue={(suggestion) => {
             return suggestion.longName;
           }}
